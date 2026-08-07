@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ventus - AI Interview Agent</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #080b12;
+      color: #ffffff;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .navbar-wrapper {
+      position: fixed;
+      top: 1.8rem;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .navbar {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.4rem;
+      border-radius: 50px;
+    }
+
+    .navbar ul {
+      display: flex;
+      list-style: none;
+      gap: 0.3rem;
+      align-items: center;
+    }
+
+    .navbar ul li a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 1.05rem;
+      font-weight: 500;
+      padding: 0.7rem 1.4rem;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .navbar ul li a:hover,
+    .navbar ul li a.active {
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(8, 11, 18, 0.75);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      padding: 0 2rem;
+    }
+
+    .hero-content h1 {
+      font-size: 4.8rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      margin-bottom: 1rem;
+      color: #ffffff;
+    }
+
+    .hero-content p {
+      font-size: 1.35rem;
+      color: #ffffff;
+      font-weight: 400;
+    }
+
+    .video-section {
+      padding: 6rem 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #080b12;
+    }
+
+    .video-container {
+      width: 90%;
+      max-width: 1200px;
+      height: 80vh;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .video-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .features-section {
+      padding: 6rem 4rem;
+      background-color: #080b12;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .features-intro {
+      flex: 1;
+    }
+
+    .features-intro h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .features-intro p {
+      font-size: 1.2rem;
+      color: #ffffff;
+      font-weight: 300;
+      opacity: 0.9;
+    }
+
+    .features-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      width: 100%;
+    }
+
+    .feature-item {
+      background: #ffffff;
+      padding: 1.2rem 1.8rem;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateX(-8px);
+    }
+
+    .feature-item i {
+      font-size: 1.8rem;
+    }
+
+    .feature-item .feature-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feature-item h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .feature-item p {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .color-1 { color: #2563eb; }
+    .color-2 { color: #0284c7; }
+    .color-3 { color: #0d9488; }
+    .color-4 { color: #4f46e5; }
+    .color-5 { color: #9333ea; }
+
+    footer {
+      background-color: #030508;
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+    }
+
+    .footer-socials {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-socials a {
+      color: #ffffff;
+      font-size: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      text-decoration: none;
+      transition: transform 0.3s ease;
+    }
+
+    .footer-socials a:hover {
+      transform: translateY(-3px);
+    }
+
+    .copyright {
+      color: #ffffff;
+      font-size: 0.85rem;
+      border-top: 1px solid #ffffff;
+      padding-top: 1.5rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar-wrapper">
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="demo.html">Live Demo</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Get in Touch</a></li>
+        <li><a href="beta.html">Beta Version</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>VENTUS</h1>
+      <p>Build the interviewer, not the interview. Next-generation adaptive AI technical evaluations.</p>
+    </div>
+  </section>
+
+  <section class="video-section">
+    <div class="video-container">
+      <iframe 
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+        title="Ventus Product Demo" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <div class="features-intro">
+      <h2>Engineered for Precision Technical Interviews</h2>
+      <p>These are our core features driving real-time adaptation, deep conversational flow, and end-to-end evaluation capabilities.</p>
+    </div>
+    <div class="features-list">
+      <div class="feature-item">
+        <i class="fas fa-brain color-1"></i>
+        <div class="feature-text">
+          <h3 class="color-1">Adaptive Questions</h3>
+          <p class="color-1">Dynamically tailors technical questions based on individual profile signals.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-comments color-2"></i>
+        <div class="feature-text">
+          <h3 class="color-2">Multi-Turn Dialogue</h3>
+          <p class="color-2">Maintains deep context over sequential turns to simulate real interviews.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-network-wired color-3"></i>
+        <div class="feature-text">
+          <h3 class="color-3">Context Memory</h3>
+          <p class="color-3">Handles dynamic follow-ups based on real-time candidate answers.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-chart-line color-4"></i>
+        <div class="feature-text">
+          <h3 class="color-4">Structured Feedback</h3>
+          <p class="color-4">Generates actionable feedback highlighting candidate strengths and gaps.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-sliders-h color-5"></i>
+        <div class="feature-text">
+          <h3 class="color-5">Custom Orchestration</h3>
+          <p class="color-5">Flexible API endpoints supporting diverse LLMs and frameworks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-socials">
+      <a href="#" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="#" target="_blank" aria-label="Linktree"><i class="fas fa-link"></i></a>
+    </div>
+    <p class="copyright">&copy; All Rights Reserved. Ventus AI Inc.</p>
+  </footer>
+
+</body>
+</html>
