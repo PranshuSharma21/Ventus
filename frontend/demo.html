@@ -97,7 +97,7 @@
   <div class="demo-container">
     <header class="demo-header">
       <h1>Ventus AI Industrial Interviewer</h1>
-      <p>Connected Live to Backend Endpoint (/api/interview) with Anti-Echo Guardrails.</p>
+      <p>Live Evaluation Engine connected to Express Backend Server.</p>
     </header>
 
     <div class="setup-panel">
@@ -176,6 +176,7 @@
 
   <script>
     const DEEPGRAM_API_KEY = "615798c4dffab46699fd4664b034a16f5751bcda";
+    // Change this URL once you deploy your backend to Render or Railway
     const BACKEND_API_URL = "http://localhost:3000/api/interview";
 
     const candidatesDatabase = [
@@ -190,7 +191,6 @@
     let validQuestionsCount = 0;
     let pasteCount = 0;
     let tabSwitchCount = 0;
-    let lastAgentQuestion = "";
     let audioCtx = null;
     let currentSource = null;
     let radarChart = null;
@@ -200,7 +200,6 @@
 
     let activeCandidate = candidatesDatabase[0];
     let candidateScores = { RAG: 0, VectorDB: 0, Agents: 0, MCP: 0 };
-    let aiRemarks = "Assessment in progress.";
 
     window.onload = function() {
       initRadarChart();
@@ -260,10 +259,8 @@
           body: JSON.stringify({ sessionId: sessionId, candidate: activeCandidate })
         });
         const data = await response.json();
-        lastAgentQuestion = data.reply;
         renderAgentMessage(data.reply);
       } catch (err) {
-        console.error("Backend Error:", err);
         renderAgentMessage(`Hello ${activeCandidate.name}. Welcome to your Ventus technical evaluation. Based on your cohort progress, how do chunking strategies impact retrieval accuracy in vector databases?`);
       }
     }
