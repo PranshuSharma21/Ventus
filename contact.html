@@ -15,29 +15,22 @@
     .navbar ul li a { color: #ffffff; text-decoration: none; font-size: 1.05rem; font-weight: 500; padding: 0.7rem 1.4rem; border-radius: 40px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
     .navbar ul li a:hover, .navbar ul li a.active { background-color: #ffffff; color: #000000; }
 
-    .contact-container { padding: 9rem 2rem 4rem; max-width: 1100px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; gap: 3rem; }
+    .contact-container { padding: 9rem 2rem 4rem; max-width: 800px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; gap: 2.5rem; justify-content: center; }
     .contact-header { text-align: center; }
     .contact-header h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 0.5rem; }
     .contact-header p { color: #94a3b8; font-size: 1.1rem; }
 
-    .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2.5rem; align-items: start; }
-    .contact-info-card { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 2.5rem; display: flex; flex-direction: column; gap: 2rem; }
-    .info-item { display: flex; align-items: center; gap: 1.2rem; }
-    .info-icon { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
-    .info-text h4 { font-size: 1.1rem; color: #ffffff; margin-bottom: 0.2rem; }
-    .info-text p { color: #94a3b8; font-size: 0.95rem; }
-
-    .contact-form-card { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 2.5rem; }
-    .form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
-    .form-group label { font-size: 0.9rem; font-weight: 600; color: #e2e8f0; }
-    .form-group input, .form-group textarea, .form-group select { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.8rem 1.2rem; border-radius: 12px; color: #ffffff; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+    .contact-form-card { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 3rem; width: 100%; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+    .form-group { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.8rem; }
+    .form-group label { font-size: 0.95rem; font-weight: 600; color: #e2e8f0; }
+    .form-group input, .form-group textarea, .form-group select { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.4rem; border-radius: 14px; color: #ffffff; font-size: 1rem; outline: none; transition: border-color 0.2s; }
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #38bdf8; }
-    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-group textarea { resize: vertical; min-height: 150px; }
 
-    .submit-btn { background: #38bdf8; color: #080b12; border: none; padding: 0.9rem 1.8rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s; width: 100%; }
+    .submit-btn { background: #38bdf8; color: #080b12; border: none; padding: 1rem 2rem; border-radius: 14px; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: background 0.2s; width: 100%; margin-top: 0.5rem; }
     .submit-btn:hover { background: #0284c7; color: #ffffff; }
 
-    .status-msg { margin-top: 1rem; font-size: 0.9rem; text-align: center; border-radius: 8px; padding: 0.6rem; display: none; }
+    .status-msg { margin-top: 1.2rem; font-size: 0.95rem; text-align: center; border-radius: 10px; padding: 0.8rem; display: none; }
     .status-msg.success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
     .status-msg.error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
@@ -46,8 +39,6 @@
     .footer-socials a { color: #ffffff; font-size: 1.5rem; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none; transition: transform 0.3s ease; }
     .footer-socials a:hover { transform: translateY(-3px); }
     .copyright { color: #ffffff; font-size: 0.85rem; border-top: 1px solid #ffffff; padding-top: 1.5rem; max-width: 600px; margin: 0 auto; }
-
-    @media (max-width: 850px) { .contact-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -70,66 +61,36 @@
       <p>Have questions about Ventus enterprise AI evaluation platform? Reach out to our team.</p>
     </header>
 
-    <div class="contact-grid">
-      <div class="contact-info-card">
-        <h3>Contact Details</h3>
-        
-        <div class="info-item">
-          <div class="info-icon"><i class="fas fa-envelope"></i></div>
-          <div class="info-text">
-            <h4>Email Inquiries</h4>
-            <p>support@ventusai.com</p>
-          </div>
+    <div class="contact-form-card">
+      <form id="contactForm" onsubmit="handleContactSubmit(event)">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="John Doe" required>
         </div>
 
-        <div class="info-item">
-          <div class="info-icon"><i class="fas fa-building"></i></div>
-          <div class="info-text">
-            <h4>Enterprise Support</h4>
-            <p>Sales & ATS Integration Team</p>
-          </div>
+        <div class="form-group">
+          <label for="email">Work Email</label>
+          <input type="email" id="email" name="email" placeholder="john@company.com" required>
         </div>
 
-        <div class="info-item">
-          <div class="info-icon"><i class="fas fa-shield-alt"></i></div>
-          <div class="info-text">
-            <h4>Security & Privacy</h4>
-            <p>Encrypted transmission & candidate data compliance</p>
-          </div>
+        <div class="form-group">
+          <label for="inquiryType">Inquiry Type</label>
+          <select id="inquiryType" name="inquiryType">
+            <option value="Enterprise Sales">Enterprise Platform Demo</option>
+            <option value="ATS Integration">ATS Integration Request</option>
+            <option value="Technical Support">Technical Support</option>
+            <option value="General Inquiry">General Inquiry</option>
+          </select>
         </div>
-      </div>
 
-      <div class="contact-form-card">
-        <form id="contactForm" onsubmit="handleContactSubmit(event)">
-          <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" placeholder="John Doe" required>
-          </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Describe your team's requirements or questions..." required></textarea>
+        </div>
 
-          <div class="form-group">
-            <label for="email">Work Email</label>
-            <input type="email" id="email" name="email" placeholder="john@company.com" required>
-          </div>
-
-          <div class="form-group">
-            <label for="inquiryType">Inquiry Type</label>
-            <select id="inquiryType" name="inquiryType">
-              <option value="Enterprise Sales">Enterprise Platform Demo</option>
-              <option value="ATS Integration">ATS Integration Request</option>
-              <option value="Technical Support">Technical Support</option>
-              <option value="General Inquiry">General Inquiry</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="message">Message</label>
-            <textarea id="message" name="message" placeholder="Describe your team's requirements or questions..." required></textarea>
-          </div>
-
-          <button type="submit" class="submit-btn" id="submitBtn">Send Message</button>
-          <div id="statusMsg" class="status-msg"></div>
-        </form>
-      </div>
+        <button type="submit" class="submit-btn" id="submitBtn">Send Message</button>
+        <div id="statusMsg" class="status-msg"></div>
+      </form>
     </div>
   </div>
 
