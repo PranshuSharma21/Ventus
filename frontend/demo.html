@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Demo - Ventus AI Interviewer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #080b12; color: #ffffff; overflow-x: hidden; line-height: 1.6; user-select: none; }
+    
+    .chat-card, .chat-input-area input {
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+    }
+
+    .navbar-wrapper { position: fixed; top: 1.8rem; left: 0; width: 100%; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+    .navbar { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.4rem; border-radius: 50px; }
+    .navbar ul { display: flex; list-style: none; gap: 0.3rem; align-items: center; }
+    .navbar ul li a { color: #ffffff; text-decoration: none; font-size: 1.05rem; font-weight: 500; padding: 0.7rem 1.4rem; border-radius: 40px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+    .navbar ul li a:hover, .navbar ul li a.active { background-color: #ffffff; color: #000000; }
+    .demo-container { padding: 8rem 2rem 4rem; max-width: 1300px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; gap: 2rem; }
+    .demo-header { text-align: center; }
+    .demo-header h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .demo-header p { color: #94a3b8; font-size: 1.1rem; }
+    .setup-panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
+    .candidate-selector { display: flex; align-items: center; gap: 1rem; }
+    .candidate-selector label { font-weight: 600; color: #e2e8f0; }
+    .candidate-selector select { background: #1e293b; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.6rem 1.2rem; border-radius: 12px; font-size: 0.95rem; outline: none; cursor: pointer; }
+    .session-metrics { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
+    .metric-badge { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.85rem; color: #cbd5e1; }
+    .metric-badge span { color: #ffffff; font-weight: 700; }
+    .proctor-badge { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .proctor-badge.warning { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #f87171; }
+    .interview-workspace { display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; height: 680px; }
+    .chat-card { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; }
+    .chat-messages { flex: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+    .message-row { display: flex; align-items: flex-start; gap: 0.8rem; max-width: 85%; }
+    .message-row.agent-row { align-self: flex-start; }
+    .message-row.user-row { align-self: flex-end; justify-content: flex-end; }
+    .message { padding: 1rem 1.2rem; border-radius: 18px; font-size: 0.95rem; line-height: 1.5; }
+    .message.agent { background: #ffffff; color: #0f172a; border-bottom-left-radius: 4px; font-weight: 500; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+    .message.user { background: #1e293b; color: #ffffff; border-bottom-right-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.15); }
+    .rag-citation { font-size: 0.75rem; background: rgba(59, 130, 246, 0.15); border-left: 3px solid #3b82f6; color: #93c5fd; padding: 0.4rem 0.6rem; margin-top: 0.5rem; border-radius: 4px; display: block; }
+    .authenticity-tag { font-size: 0.7rem; font-weight: bold; margin-top: 0.3rem; display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; }
+    .authenticity-tag.ok { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .authenticity-tag.flagged { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .tts-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; margin-top: 0.2rem; }
+    .tts-btn:hover { background: #ffffff; color: #000000; }
+    .tts-btn.speaking { background: #ffffff; color: #000000; animation: pulse 1s infinite alternate; }
+    @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+    .chat-input-area { padding: 1.2rem; background: rgba(8, 11, 18, 0.8); border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; gap: 0.8rem; }
+    .chat-input-area input { flex: 1; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.8rem 1.2rem; border-radius: 14px; color: #ffffff; font-size: 0.95rem; outline: none; }
+    .chat-input-area input:focus { border-color: #ffffff; }
+    .send-btn { background: #ffffff; color: #000000; border: none; padding: 0.8rem 1.5rem; border-radius: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .send-btn:hover { background: #e2e8f0; }
+    .sidebar-card { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; overflow-y: auto; }
+    .sidebar-card h3 { font-size: 1.1rem; font-weight: 700; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.6rem; }
+    .profile-info-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; font-size: 0.88rem; }
+    .profile-info-list li { display: flex; justify-content: space-between; color: #94a3b8; }
+    .profile-info-list li span { color: #ffffff; font-weight: 600; }
+    .proctor-logs { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8rem; max-height: 100px; overflow-y: auto; }
+    .proctor-logs li { color: #94a3b8; background: rgba(255, 255, 255, 0.03); padding: 0.4rem 0.6rem; border-radius: 6px; border-left: 2px solid #38bdf8; }
+    .proctor-logs li.warn { border-left-color: #f87171; color: #fca5a5; }
+    .radar-box { background: rgba(8, 11, 18, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 1rem; width: 100%; height: 200px; }
+    .feedback-box { background: rgba(8, 11, 18, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 1rem; font-size: 0.85rem; color: #cbd5e1; display: none; }
+    .feedback-box.active { display: block; }
+    .action-btn-group { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.8rem; }
+    .export-btn { background: #38bdf8; color: #080b12; border: none; padding: 0.6rem 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.2s; }
+    .export-btn:hover { background: #0284c7; color: #ffffff; }
+    .json-btn { background: rgba(255, 255, 255, 0.1); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.6rem 1rem; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s; }
+    .json-btn:hover { background: #ffffff; color: #000000; }
+    footer { background-color: #030508; padding: 3rem 2rem 2rem; text-align: center; margin-top: auto; }
+    .footer-socials { display: flex; justify-content: center; align-items: center; gap: 2rem; margin-bottom: 2rem; }
+    .footer-socials a { color: #ffffff; font-size: 1.5rem; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none; transition: transform 0.3s ease; }
+    .footer-socials a:hover { transform: translateY(-3px); }
+    .copyright { color: #ffffff; font-size: 0.85rem; border-top: 1px solid #ffffff; padding-top: 1.5rem; max-width: 600px; margin: 0 auto; }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+
+  <div class="navbar-wrapper">
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="demo.html" class="active">Live Demo</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Get in Touch</a></li>
+        <li><a href="beta.html">Beta Version</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="demo-container">
+    <header class="demo-header">
+      <h1>Ventus AI Industrial Interviewer</h1>
+      <p>Strict Multi-Turn Evaluation with Anti-Echo Verification.</p>
+    </header>
+
+    <div class="setup-panel">
+      <div class="candidate-selector">
+        <label for="candidateSelect">Select Candidate Profile:</label>
+        <select id="candidateSelect" onchange="loadProfile()">
+          <option value="CAND-001">CAND-001: Sarah Johnson (Senior Data Engineer)</option>
+          <option value="CAND-002">CAND-002: Alex Turner (Backend Software Engineer)</option>
+          <option value="CAND-003">CAND-003: Emily Chen (AI Engineer)</option>
+          <option value="CAND-004">CAND-004: David Miller (Business Analyst)</option>
+          <option value="CAND-005">CAND-005: Michael Brown (DevOps Engineer)</option>
+        </select>
+      </div>
+
+      <div class="session-metrics">
+        <div class="metric-badge">Difficulty Depth: <span id="depthBadge">Intermediate</span></div>
+        <div class="metric-badge">Valid Technical Questions: <span id="qCount">0 / 8</span></div>
+        <div class="proctor-badge" id="proctorStatus">
+          <i class="fas fa-shield-alt"></i> Anti-Cheat Active
+        </div>
+      </div>
+    </div>
+
+    <div class="interview-workspace">
+      <div class="chat-card">
+        <div class="chat-messages" id="chatMessages">
+          <div class="message-row agent-row">
+            <button class="tts-btn" onclick="speakText(this)" aria-label="Listen to message">
+              <i class="fas fa-volume-high"></i>
+            </button>
+            <div class="message agent">
+              Hello Sarah Johnson. Welcome to your Ventus technical evaluation. Based on your completion of Day 7 (Embeddings) & Day 8 (Vector Databases), how do chunking strategies impact retrieval accuracy in RAG systems?
+              <span class="rag-citation"><i class="fas fa-database"></i> Verified against Cohort Database (Day 7, 8, 10)</span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" id="userInput" placeholder="Write your own technical response..." onkeydown="handleKey(event)" onkeyup="recordTypingMetrics(event)">
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Loaded Candidate Context</h3>
+        <ul class="profile-info-list">
+          <li>Name: <span id="profName">Sarah Johnson</span></li>
+          <li>Role: <span id="profRole">Senior Data Engineer</span></li>
+          <li>First-Try Missions: <span id="profFirstTry">20 / 30</span></li>
+          <li>Skipped Topics: <span id="profSkipped">Day 29 Observability</span></li>
+        </ul>
+
+        <h3>Real-time Radar Analytics</h3>
+        <div class="radar-box">
+          <canvas id="radarChart"></canvas>
+        </div>
+
+        <h3>Proctoring & Audit Trail</h3>
+        <ul class="proctor-logs" id="proctorLogs">
+          <li>[System] Environment verified. Anti-Echo lockdown active.</li>
+        </ul>
+
+        <h3>Structured Evaluation</h3>
+        <div class="feedback-box" id="feedbackBox">
+          <strong>Final Assessment Complete</strong>
+          <p id="summaryText" style="margin-top: 0.4rem; font-size: 0.8rem;">
+            Evaluating live candidate responses...
+          </p>
+          <div class="action-btn-group">
+            <button class="export-btn" onclick="generatePDFScorecard()"><i class="fas fa-file-pdf"></i> Download PDF Scorecard</button>
+            <button class="json-btn" onclick="downloadAssessmentJSON()"><i class="fas fa-file-code"></i> Export Assessment JSON</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-socials">
+      <a href="#" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="#" target="_blank" aria-label="Linktree"><i class="fas fa-link"></i></a>
+    </div>
+    <p class="copyright">&copy; All Rights Reserved. Ventus AI Inc.</p>
+  </footer>
+
+  <script>
+    const DEEPGRAM_API_KEY = "615798c4dffab46699fd4664b034a16f5751bcda";
+    const GROQ_API_KEY = "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";
+
+    const candidatesDatabase = [
+      {
+        id: "CAND-001",
+        name: "Sarah Johnson",
+        role: "Senior Data Engineer",
+        experience: 9,
+        education: "MS Computer Science",
+        firstTry: "20 / 30",
+        skipped: "Day 29 Observability",
+        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 10 Retrieval Engine", "Day 22 Multi-Agent", "Day 23 MCP"]
+      },
+      {
+        id: "CAND-002",
+        name: "Alex Turner",
+        role: "Backend Software Engineer",
+        experience: 5,
+        education: "B.Tech Computer Science",
+        firstTry: "10 / 29",
+        skipped: "None",
+        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 13 Function Calling", "Day 18 Streaming", "Day 22 Multi-Agent"]
+      },
+      {
+        id: "CAND-003",
+        name: "Emily Chen",
+        role: "AI Engineer",
+        experience: 6,
+        education: "MS Artificial Intelligence",
+        firstTry: "30 / 31",
+        skipped: "None",
+        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 11 RAG End-to-End", "Day 21 LangChain Agents", "Day 23 MCP"]
+      },
+      {
+        id: "CAND-004",
+        name: "David Miller",
+        role: "Business Analyst",
+        experience: 8,
+        education: "MBA",
+        firstTry: "6 / 28",
+        skipped: "Day 28 Kubernetes",
+        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 12 Prompt Engineering", "Day 20 Context Management"]
+      },
+      {
+        id: "CAND-005",
+        name: "Michael Brown",
+        role: "DevOps Engineer",
+        experience: 10,
+        education: "B.Tech Information Technology",
+        firstTry: "22 / 31",
+        skipped: "None",
+        passedMissions: ["Day 8 Vector DBs", "Day 18 Streaming", "Day 23 MCP", "Day 28 Kubernetes", "Day 29 Monitoring"]
+      }
+    ];
+
+    const curriculumDatabase = [
+      { module: 3, title: "Embeddings & Vector Search", days: [7, 8, 9, 10], topics: ["Sentence Transformers", "ChromaDB", "Pinecone", "PCA Clusters", "Semantic Search"] },
+      { module: 4, title: "LLM Core & Prompting", days: [11, 12, 13, 14, 15], topics: ["OpenAI SDK", "Groq", "Function Calling", "Pydantic", "LoRA Fine-Tuning"] },
+      { module: 6, title: "Agentic AI & MCP", days: [21, 22, 23, 24], topics: ["LangChain Agents", "ReAct", "CrewAI", "LangGraph", "Model Context Protocol (MCP)"] },
+      { module: 7, title: "Evaluation & Security", days: [25, 26, 27, 28], topics: ["Grounding Evaluation", "Token Cost Optimization", "Guardrails", "Docker & Kubernetes"] }
+    ];
+
+    let validQuestionsCount = 0;
+    let pasteCount = 0;
+    let tabSwitchCount = 0;
+    let lastAgentQuestion = "";
+    let audioCtx = null;
+    let currentSource = null;
+    let radarChart = null;
+
+    let keystrokeTimes = [];
+    let isSelfWritten = true;
+
+    let activeCandidate = candidatesDatabase[0];
+    let candidateScores = { RAG: 0, VectorDB: 0, Agents: 0, MCP: 0 };
+    let aiRemarks = "Assessment in progress. Awaiting original technical answers.";
+
+    let conversationHistory = [];
+
+    window.onload = function() {
+      initRadarChart();
+      setupAntiCopyProtection();
+      buildSystemPrompt();
+      lastAgentQuestion = "Hello Sarah Johnson. Welcome to your Ventus technical evaluation. Based on your completion of Day 7 (Embeddings) & Day 8 (Vector Databases), how do chunking strategies impact retrieval accuracy in RAG systems?";
+    };
+
+    function buildSystemPrompt() {
+      const curriculumSummary = curriculumDatabase.map(m => `Module ${m.module} (${m.title}): ${m.topics.join(', ')}`).join("\n");
+      const candidateSummary = `Candidate: ${activeCandidate.name}, Role: ${activeCandidate.role}, Experience: ${activeCandidate.experience} years, First-Try Missions: ${activeCandidate.firstTry}, Passed Missions: ${activeCandidate.passedMissions.join(', ')}, Skipped: ${activeCandidate.skipped}.`;
+
+      conversationHistory = [
+        {
+          role: "system",
+          content: `You are Ventus, an extremely strict enterprise AI technical interviewer evaluating candidates on the 31-day AI Cohort curriculum.
+
+CONTEXT DATA:
+${candidateSummary}
+
+CURRICULUM DATA:
+${curriculumSummary}
+
+STRICT BEHAVIOR RULES:
+1. QUESTION ECHOING & PARROTING: If the candidate simply echoes or repeats words from your previous question or statement without providing an original technical explanation, REJECT IT IMMEDIATELY. State: "You are repeating my statement. Please provide your own technical explanation." and repeat the question.
+2. CASUAL/OFF-TOPIC/NON-ANSWERS: If the candidate gives non-answers ("i dont know", "no idea", "hi", "ok"), politely decline to award credit and ask a simpler foundational question.
+3. ORIGINAL TECHNICAL EXPLANATIONS: If the candidate provides an original explanation, critique their logic, ask a follow-up question, and evaluate their depth.
+4. Keep all responses under 3 sentences.`
+        }
+      ];
+    }
+
+    function checkEchoOrInvalid(text) {
+      const cleanInput = text.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '');
+      const words = cleanInput.split(/\s+/).filter(w => w.length > 2);
+      
+      if (words.length < 5) return { invalid: true, reason: "Too Short / Off-Topic" };
+
+      if (lastAgentQuestion) {
+        const cleanQuestion = lastAgentQuestion.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+        const qWords = new Set(cleanQuestion.split(/\s+/).filter(w => w.length > 2));
+        
+        let matchCount = 0;
+        words.forEach(w => {
+          if (qWords.has(w)) matchCount++;
+        });
+
+        const overlapRatio = matchCount / words.length;
+        if (overlapRatio > 0.35) {
+          return { invalid: true, reason: "Question Paraphrased / Echoed" };
+        }
+      }
+
+      const techKeywords = ["chunk", "overlap", "embedding", "vector", "distance", "cosine", "euclidean", "index", "ann", "pinecone", "chroma", "retrieval", "latency", "token", "agent", "mcp", "tool", "langchain", "graph", "schema", "prompt", "pipeline", "metadata"];
+      const containsTechConcept = words.some(w => techKeywords.some(k => w.includes(k)));
+
+      if (!containsTechConcept && words.length < 12) {
+        return { invalid: true, reason: "Lacks Technical Concept / Depth" };
+      }
+
+      return { invalid: false, reason: "" };
+    }
+
+    function setupAntiCopyProtection() {
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'a')) {
+          if (e.key === 'v') {
+            pasteCount++;
+            isSelfWritten = false;
+            logProctorEvent(`Copy-paste block triggered! External insertion flagged.`, true);
+          }
+          e.preventDefault();
+        }
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+          e.preventDefault();
+          logProctorEvent(`DevTools shortcut blocked.`, true);
+        }
+      });
+    }
+
+    function recordTypingMetrics(e) {
+      keystrokeTimes.push(Date.now());
+      if (keystrokeTimes.length > 8) {
+        let diffs = [];
+        for(let i = 1; i < keystrokeTimes.length; i++) {
+          diffs.push(keystrokeTimes[i] - keystrokeTimes[i-1]);
+        }
+        let avgSpeed = diffs.reduce((a,b) => a+b, 0) / diffs.length;
+        isSelfWritten = avgSpeed >= 12;
+      }
+    }
+
+    function initRadarChart() {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['RAG', 'Vector DBs', 'Agents', 'MCP'],
+          datasets: [{
+            label: 'Competency Score',
+            data: Object.values(candidateScores),
+            backgroundColor: 'rgba(56, 189, 248, 0.2)',
+            borderColor: '#38bdf8',
+            pointBackgroundColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' },
+              pointLabels: { color: '#94a3b8', font: { size: 10 } },
+              ticks: { display: false },
+              min: 0, max: 100
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function evaluateAnswerQuality(text) {
+      const words = text.trim().split(/\s+/).length;
+      let scoreGain = 0;
+
+      if (words > 35) scoreGain = 15;
+      else if (words > 18) scoreGain = 10;
+      else scoreGain = 5;
+
+      if (!isSelfWritten) scoreGain = Math.round(scoreGain * 0.5);
+
+      candidateScores.RAG = Math.min(100, candidateScores.RAG + scoreGain);
+      candidateScores.VectorDB = Math.min(100, candidateScores.VectorDB + Math.round(scoreGain * 0.9));
+      candidateScores.Agents = Math.min(100, candidateScores.Agents + Math.round(scoreGain * 0.8));
+      candidateScores.MCP = Math.min(100, candidateScores.MCP + Math.round(scoreGain * 0.7));
+
+      radarChart.data.datasets[0].data = Object.values(candidateScores);
+      radarChart.update();
+    }
+
+    async function speakText(btn) {
+      if (currentSource) { try { currentSource.stop(); } catch (e) {} currentSource = null; }
+      document.querySelectorAll('.tts-btn').forEach(b => b.classList.remove('speaking'));
+
+      const msgRow = btn.parentElement;
+      const text = msgRow.querySelector('.message').innerText;
+      btn.classList.add('speaking');
+
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+        const response = await fetch("https://api.deepgram.com/v1/speak?model=aura-asteria-en&encoding=mp3", {
+          method: "POST",
+          headers: { "Authorization": `Token ${DEEPGRAM_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ text: text })
+        });
+
+        if (!response.ok) throw new Error("TTS Request Failed");
+        const buffer = await response.arrayBuffer();
+        const decodedData = await audioCtx.decodeAudioData(buffer);
+
+        currentSource = audioCtx.createBufferSource();
+        currentSource.buffer = decodedData;
+        currentSource.connect(audioCtx.destination);
+        currentSource.start(0);
+        currentSource.onended = () => { btn.classList.remove('speaking'); currentSource = null; };
+      } catch (err) {
+        console.error(err);
+        btn.classList.remove('speaking');
+      }
+    }
+
+    window.addEventListener('blur', () => {
+      tabSwitchCount++;
+      logProctorEvent(`Tab unfocused / window switched (Count: ${tabSwitchCount})`, true);
+    });
+
+    function logProctorEvent(text, isWarning = false) {
+      const logs = document.getElementById('proctorLogs');
+      const li = document.createElement('li');
+      li.innerText = `[${new Date().toLocaleTimeString()}] ${text}`;
+      if (isWarning) {
+        li.className = 'warn';
+        const badge = document.getElementById('proctorStatus');
+        badge.className = 'proctor-badge warning';
+        badge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Integrity Flags Triggered`;
+      }
+      logs.prepend(li);
+    }
+
+    function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const evalCheck = checkEchoOrInvalid(text);
+
+      const sendBtn = document.getElementById('sendBtn');
+      sendBtn.disabled = true;
+      sendBtn.innerText = "...";
+
+      const chat = document.getElementById('chatMessages');
+      const userRow = document.createElement('div');
+      userRow.className = 'message-row user-row';
+      
+      const authTag = evalCheck.invalid
+        ? `<div class="authenticity-tag flagged"><i class="fas fa-exclamation-circle"></i> Flagged: ${evalCheck.reason} (Uncounted)</div>`
+        : (isSelfWritten 
+            ? `<div class="authenticity-tag ok"><i class="fas fa-check-circle"></i> Authentic Technical Response</div>`
+            : `<div class="authenticity-tag flagged"><i class="fas fa-flag"></i> Flagged: Unnatural Insertion / Paste</div>`);
+
+      userRow.innerHTML = `<div class="message user">${text}${authTag}</div>`;
+      chat.appendChild(userRow);
+
+      input.value = '';
+      keystrokeTimes = [];
+      chat.scrollTop = chat.scrollHeight;
+
+      conversationHistory.push({ role: "user", content: text });
+
+      let aiReply = "";
+      try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${GROQ_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: conversationHistory,
+            temperature: 0.3,
+            max_tokens: 180
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          aiReply = data.choices[0].message.content;
+        } else {
+          throw new Error("API call error");
+        }
+      } catch (err) {
+        if (evalCheck.invalid) {
+          aiReply = `You appear to be repeating my question or providing an incomplete statement. Please explain in your own words how vector embeddings and chunking strategies work.`;
+        } else {
+          aiReply = `Good technical point. Moving forward: How do you manage multi-agent orchestration and delegation loops?`;
+        }
+      }
+
+      lastAgentQuestion = aiReply;
+      conversationHistory.push({ role: "assistant", content: aiReply });
+
+      const agentRow = document.createElement('div');
+      agentRow.className = 'message-row agent-row';
+      agentRow.innerHTML = `
+        <button class="tts-btn" onclick="speakText(this)" aria-label="Listen to message">
+          <i class="fas fa-volume-high"></i>
+        </button>
+        <div class="message agent">
+          ${aiReply}
+          <span class="rag-citation"><i class="fas fa-database"></i> Grounded against Cohort DB (${activeCandidate.passedMissions[0] || 'Module 3'})</span>
+        </div>
+      `;
+      chat.appendChild(agentRow);
+
+      if (!evalCheck.invalid) {
+        validQuestionsCount++;
+        evaluateAnswerQuality(text);
+        document.getElementById('qCount').innerText = `${Math.min(validQuestionsCount, 8)} / 8`;
+        if (text.length > 50) document.getElementById('depthBadge').innerText = "Senior";
+      } else {
+        logProctorEvent(`Response flagged (${evalCheck.reason}). Score and question count unchanged.`, true);
+      }
+
+      if (validQuestionsCount >= 8) {
+        document.getElementById('feedbackBox').classList.add('active');
+        
+        const avgScore = (candidateScores.RAG + candidateScores.VectorDB + candidateScores.Agents + candidateScores.MCP) / 4;
+        if (avgScore >= 75) {
+          aiRemarks = `Candidate demonstrates authentic technical depth across core RAG and Agentic modules. Excellent articulate responses provided.`;
+        } else if (avgScore >= 45) {
+          aiRemarks = `Candidate showed partial understanding but lacks depth on advanced multi-agent and MCP architectures. Technical review recommended.`;
+        } else {
+          aiRemarks = `Candidate failed to demonstrate sufficient technical knowledge during the evaluation. Multiple echoing or superficial answers submitted.`;
+        }
+        
+        document.getElementById('summaryText').innerText = aiRemarks;
+      }
+
+      chat.scrollTop = chat.scrollHeight;
+      sendBtn.disabled = false;
+      sendBtn.innerText = "Send";
+      isSelfWritten = true;
+    }
+
+    function loadProfile() {
+      const id = document.getElementById('candidateSelect').value;
+      activeCandidate = candidatesDatabase.find(c => c.id === id);
+
+      document.getElementById('profName').innerText = activeCandidate.name;
+      document.getElementById('profRole').innerText = activeCandidate.role;
+      document.getElementById('profFirstTry').innerText = activeCandidate.firstTry;
+      document.getElementById('profSkipped').innerText = activeCandidate.skipped;
+
+      candidateScores = { RAG: 0, VectorDB: 0, Agents: 0, MCP: 0 };
+      radarChart.data.datasets[0].data = Object.values(candidateScores);
+      radarChart.update();
+
+      validQuestionsCount = 0;
+      document.getElementById('qCount').innerText = `0 / 8`;
+      document.getElementById('depthBadge').innerText = "Intermediate";
+      document.getElementById('feedbackBox').classList.remove('active');
+
+      buildSystemPrompt();
+
+      lastAgentQuestion = `Hello ${activeCandidate.name}. Welcome to your Ventus evaluation. Based on your completion of ${activeCandidate.passedMissions[0]}, how do chunking strategies impact retrieval accuracy in vector databases?`;
+
+      const chat = document.getElementById('chatMessages');
+      chat.innerHTML = `
+        <div class="message-row agent-row">
+          <button class="tts-btn" onclick="speakText(this)" aria-label="Listen to message">
+            <i class="fas fa-volume-high"></i>
+          </button>
+          <div class="message agent">
+            ${lastAgentQuestion}
+            <span class="rag-citation"><i class="fas fa-database"></i> Verified against Cohort Database</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function generatePDFScorecard() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      const avgScore = (candidateScores.RAG + candidateScores.VectorDB + candidateScores.Agents + candidateScores.MCP) / 4;
+      let recommendation = "REJECT / DO NOT HIRE";
+      if (avgScore >= 75) recommendation = "RECOMMEND FOR HIRE — Demonstrates strong authentic technical capability.";
+      else if (avgScore >= 45) recommendation = "FURTHER TECHNICAL REVIEW NEEDED — Moderate competency shown.";
+      else recommendation = "DO NOT HIRE — Failed to answer technical evaluation questions adequately.";
+
+      doc.setFontSize(20);
+      doc.text("Ventus AI Technical Evaluation Scorecard", 14, 20);
+
+      doc.setFontSize(11);
+      doc.text(`Candidate: ${activeCandidate.name}`, 14, 32);
+      doc.text(`Target Role: ${activeCandidate.role}`, 14, 40);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 48);
+
+      doc.line(14, 52, 196, 52);
+
+      doc.setFontSize(14);
+      doc.text("Competency Breakdown:", 14, 62);
+      doc.setFontSize(10);
+      doc.text(`• RAG Architecture: ${candidateScores.RAG} / 100`, 20, 72);
+      doc.text(`• Vector Databases & Retrieval: ${candidateScores.VectorDB} / 100`, 20, 80);
+      doc.text(`• Multi-Agent Systems: ${candidateScores.Agents} / 100`, 20, 88);
+      doc.text(`• Model Context Protocol (MCP): ${candidateScores.MCP} / 100`, 20, 96);
+
+      doc.setFontSize(14);
+      doc.text("Proctoring & Authenticity Audit:", 14, 110);
+      doc.setFontSize(10);
+      doc.text(`• Valid Technical Responses Completed: ${validQuestionsCount} / 8`, 20, 120);
+      doc.text(`• External Window Switches: ${tabSwitchCount}`, 20, 128);
+      doc.text(`• Copy-Paste Injections Intercepted: ${pasteCount}`, 20, 136);
+
+      doc.setFontSize(14);
+      doc.text("AI Interviewer Personal Remarks:", 14, 150);
+      doc.setFontSize(10);
+      doc.text(doc.splitTextToSize(aiRemarks, 170), 20, 160);
+
+      doc.setFontSize(14);
+      doc.text("Hiring Recommendation:", 14, 185);
+      doc.setFontSize(10);
+      doc.text(recommendation, 20, 195);
+
+      doc.save(`Ventus_Scorecard_${activeCandidate.name.replace(" ", "_")}.pdf`);
+    }
+
+    function downloadAssessmentJSON() {
+      const avgScore = (candidateScores.RAG + candidateScores.VectorDB + candidateScores.Agents + candidateScores.MCP) / 4;
+      const assessmentData = {
+        sessionId: `demo-session-${Date.now()}`,
+        candidate: {
+          id: activeCandidate.id,
+          name: activeCandidate.name,
+          jobRole: activeCandidate.role,
+          yearsExperience: activeCandidate.experience,
+          education: activeCandidate.education
+        },
+        scores: candidateScores,
+        overallAverage: avgScore,
+        aiPersonalRemarks: aiRemarks,
+        proctoringAudit: {
+          validQuestionsCompleted: validQuestionsCount,
+          tabSwitchCount: tabSwitchCount,
+          pasteAttempts: pasteCount,
+          antiCheatPassed: pasteCount === 0 && tabSwitchCount < 3
+        },
+        transcript: conversationHistory.filter(m => m.role !== 'system'),
+        recommendation: avgScore >= 75 ? "RECOMMEND_FOR_HIRE" : (avgScore >= 45 ? "NEEDS_REVIEW" : "REJECT"),
+        exportedAt: new Date().toISOString()
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assessmentData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Ventus_Assessment_${activeCandidate.id}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+  </script>
+
+</body>
+</html>
