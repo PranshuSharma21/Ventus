@@ -68,8 +68,11 @@
     .radar-box { background: rgba(8, 11, 18, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 1rem; width: 100%; height: 200px; }
     .feedback-box { background: rgba(8, 11, 18, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 1rem; font-size: 0.85rem; color: #cbd5e1; display: none; }
     .feedback-box.active { display: block; }
-    .export-btn { background: #38bdf8; color: #080b12; border: none; padding: 0.6rem 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 0.8rem; transition: background 0.2s; }
+    .action-btn-group { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.8rem; }
+    .export-btn { background: #38bdf8; color: #080b12; border: none; padding: 0.6rem 1rem; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.2s; }
     .export-btn:hover { background: #0284c7; color: #ffffff; }
+    .json-btn { background: rgba(255, 255, 255, 0.1); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.6rem 1rem; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s; }
+    .json-btn:hover { background: #ffffff; color: #000000; }
     footer { background-color: #030508; padding: 3rem 2rem 2rem; text-align: center; margin-top: auto; }
     .footer-socials { display: flex; justify-content: center; align-items: center; gap: 2rem; margin-bottom: 2rem; }
     .footer-socials a { color: #ffffff; font-size: 1.5rem; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none; transition: transform 0.3s ease; }
@@ -94,7 +97,7 @@
   <div class="demo-container">
     <header class="demo-header">
       <h1>Ventus AI Industrial Interviewer</h1>
-      <p>Live Neural LLM Session with RAG Context & Typing Authenticity Engine.</p>
+      <p>Live Neural LLM Session with Dynamic Evaluation & Scoring.</p>
     </header>
 
     <div class="setup-panel">
@@ -111,7 +114,7 @@
 
       <div class="session-metrics">
         <div class="metric-badge">Difficulty Depth: <span id="depthBadge">Intermediate</span></div>
-        <div class="metric-badge">Questions: <span id="qCount">1 / 8</span></div>
+        <div class="metric-badge">Valid Technical Questions: <span id="qCount">0 / 8</span></div>
         <div class="proctor-badge" id="proctorStatus">
           <i class="fas fa-shield-alt"></i> Anti-Cheat Active
         </div>
@@ -162,7 +165,10 @@
           <p id="summaryText" style="margin-top: 0.4rem; font-size: 0.8rem;">
             Evaluating live candidate responses...
           </p>
-          <button class="export-btn" onclick="generatePDFScorecard()"><i class="fas fa-file-pdf"></i> Download PDF Scorecard</button>
+          <div class="action-btn-group">
+            <button class="export-btn" onclick="generatePDFScorecard()"><i class="fas fa-file-pdf"></i> Download PDF Scorecard</button>
+            <button class="json-btn" onclick="downloadAssessmentJSON()"><i class="fas fa-file-code"></i> Export Assessment JSON</button>
+          </div>
         </div>
       </div>
     </div>
@@ -191,8 +197,7 @@
         education: "MS Computer Science",
         firstTry: "20 / 30",
         skipped: "Day 29 Observability",
-        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 10 Retrieval Engine", "Day 22 Multi-Agent", "Day 23 MCP"],
-        scores: [85, 90, 80, 75]
+        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 10 Retrieval Engine", "Day 22 Multi-Agent", "Day 23 MCP"]
       },
       {
         id: "CAND-002",
@@ -202,8 +207,7 @@
         education: "B.Tech Computer Science",
         firstTry: "10 / 29",
         skipped: "None",
-        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 13 Function Calling", "Day 18 Streaming", "Day 22 Multi-Agent"],
-        scores: [75, 70, 85, 60]
+        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 13 Function Calling", "Day 18 Streaming", "Day 22 Multi-Agent"]
       },
       {
         id: "CAND-003",
@@ -213,8 +217,7 @@
         education: "MS Artificial Intelligence",
         firstTry: "30 / 31",
         skipped: "None",
-        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 11 RAG End-to-End", "Day 21 LangChain Agents", "Day 23 MCP"],
-        scores: [95, 98, 92, 90]
+        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 11 RAG End-to-End", "Day 21 LangChain Agents", "Day 23 MCP"]
       },
       {
         id: "CAND-004",
@@ -224,8 +227,7 @@
         education: "MBA",
         firstTry: "6 / 28",
         skipped: "Day 28 Kubernetes",
-        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 12 Prompt Engineering", "Day 20 Context Management"],
-        scores: [60, 55, 50, 45]
+        passedMissions: ["Day 7 Embeddings", "Day 8 Vector DBs", "Day 12 Prompt Engineering", "Day 20 Context Management"]
       },
       {
         id: "CAND-005",
@@ -235,8 +237,7 @@
         education: "B.Tech Information Technology",
         firstTry: "22 / 31",
         skipped: "None",
-        passedMissions: ["Day 8 Vector DBs", "Day 18 Streaming", "Day 23 MCP", "Day 28 Kubernetes", "Day 29 Monitoring"],
-        scores: [80, 82, 75, 88]
+        passedMissions: ["Day 8 Vector DBs", "Day 18 Streaming", "Day 23 MCP", "Day 28 Kubernetes", "Day 29 Monitoring"]
       }
     ];
 
@@ -247,7 +248,7 @@
       { module: 7, title: "Evaluation & Security", days: [25, 26, 27, 28], topics: ["Grounding Evaluation", "Token Cost Optimization", "Guardrails", "Docker & Kubernetes"] }
     ];
 
-    let currentQuestions = 1;
+    let validQuestionsCount = 0;
     let pasteCount = 0;
     let tabSwitchCount = 0;
     let audioCtx = null;
@@ -258,7 +259,8 @@
     let isSelfWritten = true;
 
     let activeCandidate = candidatesDatabase[0];
-    let candidateScores = { RAG: activeCandidate.scores[0], VectorDB: activeCandidate.scores[1], Agents: activeCandidate.scores[2], MCP: activeCandidate.scores[3] };
+    let candidateScores = { RAG: 0, VectorDB: 0, Agents: 0, MCP: 0 };
+    let aiRemarks = "Assessment in progress. Awaiting candidate technical answers.";
 
     let conversationHistory = [];
 
@@ -275,7 +277,7 @@
       conversationHistory = [
         {
           role: "system",
-          content: `You are Ventus, an adaptive enterprise AI interviewer evaluating tech candidates based on the 31-day AI Cohort curriculum.
+          content: `You are Ventus, an adaptive enterprise AI interviewer evaluating technical candidates based on the 31-day AI Cohort curriculum.
 
 CONTEXT DATA:
 ${candidateSummary}
@@ -284,12 +286,31 @@ CURRICULUM DATA:
 ${curriculumSummary}
 
 STRICT BEHAVIOR RULES:
-1. GREETING + ANSWER: If the candidate gives an answer that starts with or contains greetings (e.g., "hi", "hello", "hey", "good morning"), GREET THEM BACK COURTEOUSLY FIRST (e.g., "Hello!"), and THEN immediately evaluate their technical answer.
-2. CASUAL/OFF-TOPIC INPUT: If the candidate inputs ONLY casual words ("hi", "ok", "hey") or OFF-TOPIC questions ("what is the weather", "who won the game"), politely brush it off in 1 short sentence, remind them this is a technical evaluation, and REPEAT or REPHRASE the current technical question.
-3. TECHNICAL ANSWERS: If the candidate provides a real technical answer, evaluate their reasoning against the curriculum topics, give concise feedback, and ask a clear follow-up question.
+1. GREETING + ANSWER: If the candidate gives an answer that starts with or contains greetings (e.g., "hi", "hello", "hey"), GREET THEM COURTEOUSLY FIRST, and THEN immediately evaluate their technical answer.
+2. CASUAL/OFF-TOPIC/GIBBERISH INPUT: If the candidate inputs ONLY casual words ("hi", "ok", "hey", "hi hi hi"), repetitive gibberish, or off-topic phrases, POLITELY BRUSH IT OFF in 1 short sentence, remind them this is a technical evaluation, and REPEAT or REPHRASE the current technical question.
+3. TECHNICAL ANSWERS: Evaluate real technical reasoning against curriculum topics, provide concise feedback, and ask a clear follow-up question.
 4. Keep all responses under 3 sentences.`
         }
       ];
+    }
+
+    function isGibberishOrCasual(text) {
+      const clean = text.trim().toLowerCase();
+      const words = clean.split(/\s+/);
+      
+      const casualWords = ["hi", "hello", "hey", "ok", "okay", "yes", "no", "sure", "cool", "test", "testing"];
+      
+      if (words.length < 3) {
+        if (words.every(w => casualWords.includes(w))) return true;
+      }
+
+      const uniqueWords = new Set(words);
+      if (words.length >= 3 && uniqueWords.size === 1) return true;
+
+      const techKeywords = ["rag", "chunk", "embedding", "vector", "database", "pinecone", "chroma", "agent", "mcp", "latency", "llm", "retrieval", "prompt", "model", "search", "context", "token", "python", "api", "pipeline"];
+      const hasTechKeyword = words.some(w => techKeywords.some(k => w.includes(k)));
+
+      return !hasTechKeyword && words.length < 5;
     }
 
     function setupAntiCopyProtection() {
@@ -352,11 +373,21 @@ STRICT BEHAVIOR RULES:
       });
     }
 
-    function updateRadarScores(qualityMultiplier) {
-      candidateScores.RAG = Math.min(100, Math.round(candidateScores.RAG + 4 * qualityMultiplier));
-      candidateScores.VectorDB = Math.min(100, Math.round(candidateScores.VectorDB + 5 * qualityMultiplier));
-      candidateScores.Agents = Math.min(100, Math.round(candidateScores.Agents + 6 * qualityMultiplier));
-      candidateScores.MCP = Math.min(100, Math.round(candidateScores.MCP + 5 * qualityMultiplier));
+    function evaluateAnswerQuality(text) {
+      const words = text.trim().split(/\s+/).length;
+      let scoreGain = 0;
+
+      if (words > 35) scoreGain = 15;
+      else if (words > 18) scoreGain = 10;
+      else scoreGain = 5;
+
+      if (!isSelfWritten) scoreGain = Math.round(scoreGain * 0.5);
+
+      candidateScores.RAG = Math.min(100, candidateScores.RAG + scoreGain);
+      candidateScores.VectorDB = Math.min(100, candidateScores.VectorDB + Math.round(scoreGain * 0.9));
+      candidateScores.Agents = Math.min(100, candidateScores.Agents + Math.round(scoreGain * 0.8));
+      candidateScores.MCP = Math.min(100, candidateScores.MCP + Math.round(scoreGain * 0.7));
+
       radarChart.data.datasets[0].data = Object.values(candidateScores);
       radarChart.update();
     }
@@ -419,6 +450,8 @@ STRICT BEHAVIOR RULES:
       const text = input.value.trim();
       if (!text) return;
 
+      const isOffTopic = isGibberishOrCasual(text);
+
       const sendBtn = document.getElementById('sendBtn');
       sendBtn.disabled = true;
       sendBtn.innerText = "...";
@@ -427,9 +460,11 @@ STRICT BEHAVIOR RULES:
       const userRow = document.createElement('div');
       userRow.className = 'message-row user-row';
       
-      const authTag = isSelfWritten 
-        ? `<div class="authenticity-tag ok"><i class="fas fa-check-circle"></i> Authentic Self-Written (OK)</div>`
-        : `<div class="authenticity-tag flagged"><i class="fas fa-flag"></i> Flagged: Unnatural Insertion / Paste</div>`;
+      const authTag = isOffTopic
+        ? `<div class="authenticity-tag flagged"><i class="fas fa-exclamation-circle"></i> Off-Topic / Casual (Uncounted)</div>`
+        : (isSelfWritten 
+            ? `<div class="authenticity-tag ok"><i class="fas fa-check-circle"></i> Authentic Technical Response</div>`
+            : `<div class="authenticity-tag flagged"><i class="fas fa-flag"></i> Flagged: Unnatural Insertion / Paste</div>`);
 
       userRow.innerHTML = `<div class="message user">${text}${authTag}</div>`;
       chat.appendChild(userRow);
@@ -463,7 +498,11 @@ STRICT BEHAVIOR RULES:
           throw new Error("API call error");
         }
       } catch (err) {
-        aiReply = `Hello ${activeCandidate.name}. Let's stay focused on your evaluation: How do chunking strategies in RAG pipelines impact retrieval precision in vector databases?`;
+        if (isOffTopic) {
+          aiReply = `Hello ${activeCandidate.name}. Please provide a technical explanation: How do chunking strategies impact retrieval accuracy in vector databases?`;
+        } else {
+          aiReply = `Good technical point. Moving forward: How do you manage multi-agent orchestration and delegation loops?`;
+        }
       }
 
       conversationHistory.push({ role: "assistant", content: aiReply });
@@ -481,18 +520,31 @@ STRICT BEHAVIOR RULES:
       `;
       chat.appendChild(agentRow);
 
-      currentQuestions++;
-      document.getElementById('qCount').innerText = `${Math.min(currentQuestions, 8)} / 8`;
-      
-      if (text.length > 50) document.getElementById('depthBadge').innerText = "Senior";
-      if (currentQuestions >= 8) {
-        document.getElementById('feedbackBox').classList.add('active');
-        document.getElementById('summaryText').innerText = `Evaluation completed for ${activeCandidate.name}. Scorecard compiled.`;
+      if (!isOffTopic) {
+        validQuestionsCount++;
+        evaluateAnswerQuality(text);
+        document.getElementById('qCount').innerText = `${Math.min(validQuestionsCount, 8)} / 8`;
+        if (text.length > 50) document.getElementById('depthBadge').innerText = "Senior";
+      } else {
+        logProctorEvent(`Non-technical or casual response ignored from question count.`);
       }
 
-      updateRadarScores(isSelfWritten ? 1.2 : 0.4);
-      chat.scrollTop = chat.scrollHeight;
+      if (validQuestionsCount >= 8) {
+        document.getElementById('feedbackBox').classList.add('active');
+        
+        const avgScore = (candidateScores.RAG + candidateScores.VectorDB + candidateScores.Agents + candidateScores.MCP) / 4;
+        if (avgScore >= 75) {
+          aiRemarks = `Candidate demonstrates authentic technical depth across core RAG and Agentic modules. Excellent articulate responses provided.`;
+        } else if (avgScore >= 45) {
+          aiRemarks = `Candidate showed partial understanding but lacks depth on advanced multi-agent and MCP architectures. Technical review recommended.`;
+        } else {
+          aiRemarks = `Candidate failed to demonstrate sufficient technical knowledge during the evaluation. Multiple off-topic or superficial answers submitted.`;
+        }
+        
+        document.getElementById('summaryText').innerText = aiRemarks;
+      }
 
+      chat.scrollTop = chat.scrollHeight;
       sendBtn.disabled = false;
       sendBtn.innerText = "Send";
       isSelfWritten = true;
@@ -507,12 +559,12 @@ STRICT BEHAVIOR RULES:
       document.getElementById('profFirstTry').innerText = activeCandidate.firstTry;
       document.getElementById('profSkipped').innerText = activeCandidate.skipped;
 
-      candidateScores = { RAG: activeCandidate.scores[0], VectorDB: activeCandidate.scores[1], Agents: activeCandidate.scores[2], MCP: activeCandidate.scores[3] };
+      candidateScores = { RAG: 0, VectorDB: 0, Agents: 0, MCP: 0 };
       radarChart.data.datasets[0].data = Object.values(candidateScores);
       radarChart.update();
 
-      currentQuestions = 1;
-      document.getElementById('qCount').innerText = `1 / 8`;
+      validQuestionsCount = 0;
+      document.getElementById('qCount').innerText = `0 / 8`;
       document.getElementById('depthBadge').innerText = "Intermediate";
       document.getElementById('feedbackBox').classList.remove('active');
 
@@ -536,6 +588,12 @@ STRICT BEHAVIOR RULES:
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       
+      const avgScore = (candidateScores.RAG + candidateScores.VectorDB + candidateScores.Agents + candidateScores.MCP) / 4;
+      let recommendation = "REJECT / DO NOT HIRE";
+      if (avgScore >= 75) recommendation = "RECOMMEND FOR HIRE — Demonstrates strong authentic technical capability.";
+      else if (avgScore >= 45) recommendation = "FURTHER TECHNICAL REVIEW NEEDED — Moderate competency shown.";
+      else recommendation = "DO NOT HIRE — Failed to answer technical evaluation questions adequately.";
+
       doc.setFontSize(20);
       doc.text("Ventus AI Technical Evaluation Scorecard", 14, 20);
 
@@ -557,15 +615,55 @@ STRICT BEHAVIOR RULES:
       doc.setFontSize(14);
       doc.text("Proctoring & Authenticity Audit:", 14, 110);
       doc.setFontSize(10);
-      doc.text(`• External Window Switches: ${tabSwitchCount}`, 20, 120);
-      doc.text(`• Copy-Paste Injections Intercepted: ${pasteCount}`, 20, 128);
+      doc.text(`• Valid Technical Responses Completed: ${validQuestionsCount} / 8`, 20, 120);
+      doc.text(`• External Window Switches: ${tabSwitchCount}`, 20, 128);
+      doc.text(`• Copy-Paste Injections Intercepted: ${pasteCount}`, 20, 136);
 
       doc.setFontSize(14);
-      doc.text("Hiring Recommendation:", 14, 142);
+      doc.text("AI Interviewer Personal Remarks:", 14, 150);
       doc.setFontSize(10);
-      doc.text("RECOMMEND FOR HIRE — Candidate demonstrates authentic technical depth across core modules.", 20, 152);
+      doc.text(doc.splitTextToSize(aiRemarks, 170), 20, 160);
+
+      doc.setFontSize(14);
+      doc.text("Hiring Recommendation:", 14, 185);
+      doc.setFontSize(10);
+      doc.text(recommendation, 20, 195);
 
       doc.save(`Ventus_Scorecard_${activeCandidate.name.replace(" ", "_")}.pdf`);
+    }
+
+    function downloadAssessmentJSON() {
+      const avgScore = (candidateScores.RAG + candidateScores.VectorDB + candidateScores.Agents + candidateScores.MCP) / 4;
+      const assessmentData = {
+        sessionId: `demo-session-${Date.now()}`,
+        candidate: {
+          id: activeCandidate.id,
+          name: activeCandidate.name,
+          jobRole: activeCandidate.role,
+          yearsExperience: activeCandidate.experience,
+          education: activeCandidate.education
+        },
+        scores: candidateScores,
+        overallAverage: avgScore,
+        aiPersonalRemarks: aiRemarks,
+        proctoringAudit: {
+          validQuestionsCompleted: validQuestionsCount,
+          tabSwitchCount: tabSwitchCount,
+          pasteAttempts: pasteCount,
+          antiCheatPassed: pasteCount === 0 && tabSwitchCount < 3
+        },
+        transcript: conversationHistory.filter(m => m.role !== 'system'),
+        recommendation: avgScore >= 75 ? "RECOMMEND_FOR_HIRE" : (avgScore >= 45 ? "NEEDS_REVIEW" : "REJECT"),
+        exportedAt: new Date().toISOString()
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assessmentData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Ventus_Assessment_${activeCandidate.id}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
     }
   </script>
 
