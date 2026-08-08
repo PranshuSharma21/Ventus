@@ -26,6 +26,18 @@
     .demo-header { text-align: center; }
     .demo-header h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 0.5rem; }
     .demo-header p { color: #94a3b8; font-size: 1.1rem; }
+    
+    .render-notice {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      padding: 0.6rem 1.2rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: 0.8rem;
+    }
+
     .setup-panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
     .candidate-selector { display: flex; align-items: center; gap: 1rem; }
     .candidate-selector label { font-weight: 600; color: #e2e8f0; }
@@ -98,6 +110,9 @@
     <header class="demo-header">
       <h1>Ventus AI Industrial Interviewer</h1>
       <p>Live Evaluation Engine connected to Express Backend Server.</p>
+      <div class="render-notice">
+        <i class="fas fa-info-circle"></i> Note: The backend is hosted on a free Render instance. Initial session loading or response may take 30–50 seconds while the server spins up.
+      </div>
     </header>
 
     <div class="setup-panel">
@@ -176,8 +191,7 @@
 
   <script>
     const DEEPGRAM_API_KEY = "615798c4dffab46699fd4664b034a16f5751bcda";
-    // Change this URL once you deploy your backend to Render or Railway
-    const BACKEND_API_URL = "http://localhost:3000/api/interview";
+    const BACKEND_API_URL = "https://ventus-cv39.onrender.com/api/interview";
 
     const candidatesDatabase = [
       { id: "CAND-001", name: "Sarah Johnson", role: "Senior Data Engineer", experience: 9, education: "MS Computer Science", firstTry: "20 / 30", skipped: "Day 29 Observability" },
@@ -206,6 +220,17 @@
       setupAntiCopyProtection();
       startSession();
     };
+
+    function checkLocalCasualFilter(text) {
+      const clean = text.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '');
+      const words = clean.split(/\s+/).filter(w => w.length > 0);
+      const casuals = ["hi", "hello", "hey", "ok", "okay", "yes", "no", "sure", "test", "testing", "sup"];
+      if (words.length <= 3 && words.some(w => casuals.includes(w))) return true;
+
+      const techKeywords = ["chunk", "embedding", "vector", "distance", "index", "pinecone", "chroma", "retrieval", "latency", "agent", "mcp", "tool", "schema", "prompt", "pipeline"];
+      const hasTech = words.some(w => techKeywords.some(k => w.includes(k)));
+      return !hasTech && words.length < 8;
+    }
 
     function setupAntiCopyProtection() {
       document.addEventListener('keydown', (e) => {
@@ -285,6 +310,8 @@
       const text = input.value.trim();
       if (!text) return;
 
+      const isCasual = checkLocalCasualFilter(text);
+
       const sendBtn = document.getElementById('sendBtn');
       sendBtn.disabled = true;
       sendBtn.innerText = "...";
@@ -293,9 +320,11 @@
       const userRow = document.createElement('div');
       userRow.className = 'message-row user-row';
       
-      const authTag = isSelfWritten 
-        ? `<div class="authenticity-tag ok"><i class="fas fa-check-circle"></i> Authentic Technical Response</div>`
-        : `<div class="authenticity-tag flagged"><i class="fas fa-flag"></i> Flagged: Unnatural Insertion / Paste</div>`;
+      const authTag = isCasual
+        ? `<div class="authenticity-tag flagged"><i class="fas fa-exclamation-circle"></i> Flagged: Off-Topic / Casual (Uncounted)</div>`
+        : (isSelfWritten 
+            ? `<div class="authenticity-tag ok"><i class="fas fa-check-circle"></i> Authentic Technical Response</div>`
+            : `<div class="authenticity-tag flagged"><i class="fas fa-flag"></i> Flagged: Unnatural Insertion / Paste</div>`);
 
       userRow.innerHTML = `<div class="message user">${text}${authTag}</div>`;
       chat.appendChild(userRow);
@@ -317,9 +346,18 @@
         if (data.done) {
           document.getElementById('feedbackBox').classList.add('active');
           document.getElementById('summaryText').innerText = data.feedback.summary;
-        } else {
+        } else if (!data.isInvalid && !isCasual) {
           validQuestionsCount++;
           document.getElementById('qCount').innerText = `${Math.min(validQuestionsCount, 8)} / 8`;
+          
+          candidateScores.RAG = Math.min(100, candidateScores.RAG + 12);
+          candidateScores.VectorDB = Math.min(100, candidateScores.VectorDB + 10);
+          candidateScores.Agents = Math.min(100, candidateScores.Agents + 10);
+          candidateScores.MCP = Math.min(100, candidateScores.MCP + 8);
+          radarChart.data.datasets[0].data = Object.values(candidateScores);
+          radarChart.update();
+        } else {
+          logProctorEvent(`Casual or invalid turn ignored. Question count unchanged.`, true);
         }
       } catch (err) {
         console.error("API Call Error:", err);
@@ -391,6 +429,10 @@
       document.getElementById('profRole').innerText = activeCandidate.role;
       document.getElementById('profFirstTry').innerText = activeCandidate.firstTry;
       document.getElementById('profSkipped').innerText = activeCandidate.skipped;
+
+      candidateScores = { RAG: 0, VectorDB: 0, Agents: 0, MCP: 0 };
+      radarChart.data.datasets[0].data = Object.values(candidateScores);
+      radarChart.update();
 
       document.getElementById('chatMessages').innerHTML = "";
       startSession();
