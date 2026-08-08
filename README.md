@@ -27,3 +27,31 @@ Ventus is an enterprise grade technical evaluation platform built to conduct dyn
 * **Voice Synthesis**: Deepgram Aura TTS API
 * **Form Pipeline**: Formspree API
 * **Hosting**: GitHub Pages (Frontend), Render Web Services (Backend)
+
+
+
+---
+
+## Architecture Overview
+
+```text
+               +----------------------------------+
+               |       GitHub Pages Client        |
+               |  (HTML5, CSS3, Chart.js, jsPDF)  |
+               +----------------------------------+
+                                |
+                   HTTPS POST   |   Deepgram Aura TTS
+                 /api/interview |   (Audio Playback)
+                                v
+               +----------------------------------+
+               |      Node.js Express Server      |
+               |       (Hosted on Render)         |
+               +----------------------------------+
+                                |
+                                v
+               +----------------------------------+
+               |         Groq Llama 3.3 70B       |
+               |    (Multi-Turn LLM Inference)    |
+               +----------------------------------+
+
+```
