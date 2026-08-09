@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ventus AI - Enterprise AI Interviewer</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #080b12; color: #ffffff; overflow-x: hidden; line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
@@ -30,20 +30,124 @@
     .btn-secondary { background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.9rem 2.2rem; border-radius: 14px; font-weight: 600; text-decoration: none; font-size: 1.05rem; transition: all 0.2s; }
     .btn-secondary:hover { background: #ffffff; color: #000000; }
 
-    .video-section { width: 100%; max-width: 950px; margin: 3rem auto 5rem; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .video-section { width: 100%; max-width: 950px; margin: 3rem auto 4rem; padding: 0 1.5rem; position: relative; z-index: 1; }
     .video-card { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; padding: 1rem; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); overflow: hidden; }
     .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; }
     .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
+    /* Features Section Styles from Requested Code */
+    .features-section {
+      padding: 6rem 4rem;
+      background: #080b12;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .features-intro {
+      flex: 1;
+    }
+
+    .features-intro h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .features-intro p {
+      font-size: 1.2rem;
+      color: #ffffff;
+      font-weight: 300;
+      opacity: 0.9;
+    }
+
+    .features-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      width: 100%;
+    }
+
+    .feature-item {
+      background: #ffffff;
+      padding: 1.2rem 1.8rem;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateX(-8px);
+    }
+
+    .feature-item i {
+      font-size: 1.8rem;
+    }
+
+    .feature-item .feature-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feature-item h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .feature-item p {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .color-1 { color: #2563eb; }
+    .color-2 { color: #0284c7; }
+    .color-3 { color: #0d9488; }
+    .color-4 { color: #4f46e5; }
+    .color-5 { color: #9333ea; }
+
+    .faq-section { width: 100%; max-width: 950px; margin: 0 auto 6rem; padding: 0 1.5rem; z-index: 1; }
+    .faq-header { text-align: center; margin-bottom: 3rem; }
+    .faq-header h2 { font-size: 2.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .faq-header p { color: #94a3b8; font-size: 1.1rem; }
+    .faq-accordion { display: flex; flex-direction: column; gap: 1.2rem; }
+    .faq-item { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .faq-item:hover { border-color: rgba(56, 189, 248, 0.4); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); }
+    .faq-question { width: 100%; background: transparent; border: none; padding: 1.5rem 1.8rem; text-align: left; font-size: 1.15rem; font-weight: 700; color: #ffffff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: color 0.3s ease; }
+    .faq-question i.faq-icon { color: #38bdf8; font-size: 1rem; margin-right: 0.6rem; }
+    .faq-chevron { color: #38bdf8; font-size: 0.9rem; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; }
+    .faq-item.active .faq-chevron { transform: rotate(180deg); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .faq-answer-content { padding: 0 1.8rem 1.5rem 1.8rem; color: #94a3b8; font-size: 0.98rem; line-height: 1.6; border-top: 1px solid transparent; transition: border-color 0.3s ease; }
+    .faq-item.active .faq-answer-content { border-top-color: rgba(255, 255, 255, 0.08); padding-top: 1rem; }
+
     footer { background-color: #030508; padding: 3rem 2rem 2rem; text-align: center; margin-top: auto; }
     .footer-socials { display: flex; justify-content: center; align-items: center; gap: 2rem; margin-bottom: 2rem; }
-    .footer-socials a { color: #ffffff; font-size: 1.5rem; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none; transition: transform 0.3s ease, color 0.3s ease; }
-    .footer-socials a:hover { transform: translateY(-3px); color: #38bdf8; }
+    .footer-socials a { color: #ffffff; font-size: 1.4rem; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); text-decoration: none; transition: all 0.3s ease; }
+    .footer-socials a:hover { transform: translateY(-3px); color: #080b12; background: #38bdf8; }
     .copyright { color: #ffffff; font-size: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 1.5rem; max-width: 600px; margin: 0 auto; }
+
+    @media (max-width: 900px) {
+      .features-section {
+        flex-direction: column;
+        padding: 4rem 2rem;
+      }
+    }
 
     @media (max-width: 768px) {
       .hero-title { font-size: 2.6rem; }
       .hero-subtitle { font-size: 1.05rem; }
+      .faq-header h2 { font-size: 2rem; }
+      .features-intro h2 { font-size: 2.2rem; }
+      .faq-question { font-size: 1.05rem; padding: 1.2rem 1.4rem; }
+      .faq-answer-content { padding: 0 1.4rem 1.2rem; }
     }
   </style>
 </head>
@@ -86,15 +190,139 @@
     </div>
   </section>
 
+  <section class="features-section">
+    <div class="features-intro">
+      <h2>Engineered for Precision Technical Interviews</h2>
+      <p>These are our core features driving real-time adaptation, deep conversational flow, and end-to-end evaluation capabilities.</p>
+    </div>
+    <div class="features-list">
+      <div class="feature-item">
+        <i class="fas fa-brain color-1"></i>
+        <div class="feature-text">
+          <h3 class="color-1">Adaptive Questions</h3>
+          <p class="color-1">Dynamically tailors technical questions based on individual profile signals.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-comments color-2"></i>
+        <div class="feature-text">
+          <h3 class="color-2">Multi-Turn Dialogue</h3>
+          <p class="color-2">Maintains deep context over sequential turns to simulate real interviews.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-network-wired color-3"></i>
+        <div class="feature-text">
+          <h3 class="color-3">Context Memory</h3>
+          <p class="color-3">Handles dynamic follow-ups based on real-time candidate answers.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-chart-line color-4"></i>
+        <div class="feature-text">
+          <h3 class="color-4">Structured Feedback</h3>
+          <p class="color-4">Generates actionable feedback highlighting candidate strengths and gaps.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-sliders-h color-5"></i>
+        <div class="feature-text">
+          <h3 class="color-5">Custom Orchestration</h3>
+          <p class="color-5">Flexible API endpoints supporting diverse LLMs and frameworks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <div class="faq-header">
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you need to know about the Ventus AI evaluation platform.</p>
+    </div>
+
+    <div class="faq-accordion">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span><i class="fas fa-circle-question faq-icon"></i> How does Ventus evaluate candidate answers?</span>
+          <i class="fas fa-chevron-down faq-chevron"></i>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Ventus uses multi-turn Groq Llama-3.3 inference to conduct deep-dive technical follow-ups. Answers are continuously benchmarked against grounded curriculum modules to evaluate semantic accuracy, technical reasoning, and problem-solving depth.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span><i class="fas fa-shield-halved faq-icon"></i> What proctoring and security features are included?</span>
+          <i class="fas fa-chevron-down faq-chevron"></i>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            The platform actively monitors candidate authenticity through typing cadence analysis, external copy-paste blocker events, tab focus tracking, and real-time question-paraphrasing detection.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span><i class="fas fa-file-invoice faq-icon"></i> What outputs do hiring teams receive after an evaluation?</span>
+          <i class="fas fa-chevron-down faq-chevron"></i>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Upon completing an interview, Ventus compiles a real-time SVG competency radar chart along with exportable, structured PDF scorecards and assessment JSON summaries containing candidate strengths and growth areas.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span><i class="fas fa-plug faq-icon"></i> Can Ventus integrate with existing ATS systems?</span>
+          <i class="fas fa-chevron-down faq-chevron"></i>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Yes. Ventus exposes a RESTful HTTP API contract (`POST /api/interview`) that can be integrated into custom recruitment workflows or ATS platforms like Greenhouse and Lever.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <div class="footer-socials">
       <a href="https://www.youtube.com/@Ventus-ai" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
       <a href="https://www.instagram.com/ventus_ai_inc/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-      <a href="https://x.com/Ventus_Ai_inc" target="_blank" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+      <a href="https://x.com/Ventus_Ai_inc" target="_blank" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
       <a href="https://linktr.ee/Ventus.Ai" target="_blank" aria-label="Linktree"><i class="fas fa-link"></i></a>
     </div>
     <p class="copyright">&copy; All Rights Reserved. Ventus AI Inc.</p>
   </footer>
+
+  <script>
+    function toggleFaq(btn) {
+      const item = btn.parentElement;
+      const answer = item.querySelector('.faq-answer');
+      const isActive = item.classList.contains('active');
+
+      document.querySelectorAll('.faq-item').forEach(otherItem => {
+        if (otherItem !== item) {
+          otherItem.classList.remove('active');
+          otherItem.querySelector('.faq-answer').style.maxHeight = null;
+        }
+      });
+
+      if (isActive) {
+        item.classList.remove('active');
+        answer.style.maxHeight = null;
+      } else {
+        item.classList.add('active');
+        answer.style.maxHeight = answer.scrollHeight + "px";
+      }
+    }
+  </script>
 
 </body>
 </html>
